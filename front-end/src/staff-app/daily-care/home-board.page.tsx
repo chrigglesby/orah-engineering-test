@@ -17,7 +17,7 @@ export const HomeBoardPage: React.FC = () => {
   const [sortByOptionIndex, setSortByOptionIndex] = useState(0)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
-  const sortByOptions = ['fullName', 'firstName', 'lastName']
+  const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
   
   useEffect(() => {
@@ -83,15 +83,12 @@ export const HomeBoardPage: React.FC = () => {
 
 const sortStudents = (students: Person[], by: string, descending: boolean) => {
   students.sort((a, b) => {
-    let nameA = a.first_name
-    let nameB = b.first_name
+    let nameA = a.first_name + a.last_name
+    let nameB = b.first_name + b.last_name
 
-    if (by === 'fullName') {
-      nameA += a.last_name
-      nameB += b.last_name
-    } else if (by === 'lastName') {
-      nameA = a.last_name
-      nameB = b.last_name
+    if (by === 'lastName') {
+      nameA = a.last_name + a.first_name
+      nameB = b.last_name + b.first_name
     }
 
     return sortAlphabetical(nameA, nameB, descending)
@@ -103,14 +100,11 @@ const sortStudents = (students: Person[], by: string, descending: boolean) => {
 const getSortByTitle = (by: string, descending: boolean) => {
   let title
   switch(by){
-    case 'firstName':
-      title = 'First'
-      break
     case 'lastName':
       title = 'Last'
       break
     default:
-      title = 'Full'
+      title = 'First'
   }
   title += ' Name '
   title += descending ? '▼' : '▲'
