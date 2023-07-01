@@ -16,6 +16,7 @@ export const HomeBoardPage: React.FC = () => {
   const [sortDirectionDescending, setSortDirectionDescending] = useState(false)
   const [sortByOptionIndex, setSortByOptionIndex] = useState(0)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [searchTerm, setSearchTerm] = useState(null)
 
   const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
@@ -64,7 +65,7 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && data?.students && (
           <>
-            {sortStudents(data.students, sortBy, sortDirectionDescending).map((s) => (
+            {sortStudents(searchStudents(data.students, 'Bran'), sortBy, sortDirectionDescending).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s}/>
             ))}
           </>
@@ -95,6 +96,15 @@ const sortStudents = (students: Person[], by: string, descending: boolean) => {
   })
 
   return students
+}
+
+const searchStudents = (students: Person[], searchTerm: string) => {
+  return students.filter(s => {
+    let name = (s.first_name + ' ' + s.last_name).toLowerCase()
+    searchTerm = searchTerm.toLowerCase()
+
+    return name.indexOf(searchTerm) > -1
+  })
 }
 
 const getSortByTitle = (by: string, descending: boolean) => {
