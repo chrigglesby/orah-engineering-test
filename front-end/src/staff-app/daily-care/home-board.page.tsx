@@ -174,11 +174,6 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
   )
 }
 
-interface StudentRollState {
-  id: number
-  rollState: ItemType
-}
-
 const S = {
   PageContainer: styled.div`
     display: flex;
