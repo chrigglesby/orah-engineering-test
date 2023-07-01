@@ -10,8 +10,8 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { sortAlphabetical } from "shared/helpers/sort-utils"
-import { ItemType, StateList } from "staff-app/components/roll-state/roll-state-list.component"
-import { RolllStateType } from "shared/models/roll"
+import { StateList } from "staff-app/components/roll-state/roll-state-list.component"
+import { RollEntry, RolllStateType } from "shared/models/roll"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -19,14 +19,7 @@ export const HomeBoardPage: React.FC = () => {
   const [sortByOptionIndex, setSortByOptionIndex] = useState(0)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [searchTerm, setSearchTerm] = useState('')
-
-  const studentRollStates: StudentRollState[] = [
-    {id: 1, rollState: 'present'},
-    {id: 2, rollState: 'absent'},
-    {id: 3, rollState: 'late'},
-    {id: 3, rollState: 'late'},
-    {id: 3, rollState: 'late'},
-  ]
+  const [roll, setRoll] = useState<RollEntry[]>([])
 
   const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
@@ -34,6 +27,13 @@ export const HomeBoardPage: React.FC = () => {
   useEffect(() => {
     void getStudents()
   }, [getStudents])
+
+  useEffect(() => {
+    if (data?.students) {
+      // Generate roll structure
+      setRoll(data.students.map(s => ({student_id: s.id, roll_state: 'unmark'})))
+    }
+  }, [data])
 
   const onToolbarAction = (action: ToolbarAction) => {
     // On sort, cycle through sort type and order
@@ -54,6 +54,17 @@ export const HomeBoardPage: React.FC = () => {
     if (action === "roll") {
       setIsRollMode(true)
     }
+  }
+
+  const onRollStateChange = (studentId: number, rollState: RolllStateType) => {
+    let updateRoll: RollEntry[] = [...roll]
+    const entry: RollEntry = {student_id: studentId, roll_state: rollState}
+    const studentIndex = updateRoll.findIndex(x => x.student_id === studentId)
+
+    // Replace student roll entry
+    updateRoll.splice(studentIndex, 1, entry)
+
+    setRoll(updateRoll)
   }
 
   const onActiveRollAction = (action: ActiveRollAction) => {
@@ -90,7 +101,7 @@ export const HomeBoardPage: React.FC = () => {
       <ActiveRollOverlay
         isActive={isRollMode}
         onItemClick={onActiveRollAction}
-        stateList={studentRollsToRollStateList(studentRollStates)}
+        stateList={studentRollsToRollStateList(roll)}
       />
     </>
   )
@@ -136,7 +147,7 @@ const getSortByTitle = (by: string, descending: boolean) => {
   return title
 }
 
-const studentRollsToRollStateList = (studentRolls: StudentRollState[]): StateList[] => {
+const studentRollsToRollStateList = (studentRolls: RollEntry[]): StateList[] => {
   let rollTally = {
     all: 0,
     present: 0,
@@ -146,14 +157,15 @@ const studentRollsToRollStateList = (studentRolls: StudentRollState[]): StateLis
   }
   
   for (let i = 0; i < studentRolls.length; i++) {
-    rollTally[studentRolls[i].rollState] = rollTally[studentRolls[i].rollState] + 1
+    rollTally[studentRolls[i].roll_state] = rollTally[studentRolls[i].roll_state] + 1
   }
 
   return [
-    { type: "all", count: rollTally.all },
+    { type: "all", count: studentRolls.length },
     { type: "present", count: rollTally.present },
     { type: "late", count: rollTally.late },
-    { type: "absent", count: rollTally.absent }  
+    { type: "absent", count: rollTally.absent },
+    { type: "unmark", count: rollTally.unmark }
   ]
 }
 
