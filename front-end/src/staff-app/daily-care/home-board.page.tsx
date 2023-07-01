@@ -51,43 +51,6 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
-  const sortStudents = (students: Person[], by: string, descending: boolean) => {
-    students.sort((a, b) => {
-      let nameA = a.first_name
-      let nameB = b.first_name
-
-      if (by === 'fullName') {
-        nameA += a.last_name
-        nameB += b.last_name
-      } else if (by === 'lastName') {
-        nameA = a.last_name
-        nameB = b.last_name
-      }
-
-      return sortAlphabetical(nameA, nameB, descending)
-    })
-
-    return students
-  }
-
-  const getSortByTitle = (by: string, descending: boolean) => {
-    let title
-    switch(by){
-      case 'firstName':
-        title = 'First'
-        break
-      case 'lastName':
-        title = 'Last'
-        break
-      default:
-        title = 'Full'
-    }
-    title += ' Name '
-    title += descending ? '▼' : '▲'
-
-    return title
-  }
-
   return (
     <>
       <S.PageContainer>
@@ -116,6 +79,43 @@ export const HomeBoardPage: React.FC = () => {
       <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} />
     </>
   )
+}
+
+const sortStudents = (students: Person[], by: string, descending: boolean) => {
+  students.sort((a, b) => {
+    let nameA = a.first_name
+    let nameB = b.first_name
+
+    if (by === 'fullName') {
+      nameA += a.last_name
+      nameB += b.last_name
+    } else if (by === 'lastName') {
+      nameA = a.last_name
+      nameB = b.last_name
+    }
+
+    return sortAlphabetical(nameA, nameB, descending)
+  })
+
+  return students
+}
+
+const getSortByTitle = (by: string, descending: boolean) => {
+  let title
+  switch(by){
+    case 'firstName':
+      title = 'First'
+      break
+    case 'lastName':
+      title = 'Last'
+      break
+    default:
+      title = 'Full'
+  }
+  title += ' Name '
+  title += descending ? '▼' : '▲'
+
+  return title
 }
 
 type ToolbarAction = "roll" | "sort"
