@@ -76,7 +76,7 @@ export const HomeBoardPage: React.FC = () => {
         {loadState === "loaded" && data?.students && (
           <>
             {sortStudents(searchStudents(data.students, searchTerm), sortBy, sortDirectionDescending).map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s}/>
+              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} onRollStateChange={onRollStateChange}/>
             ))}
           </>
         )}
