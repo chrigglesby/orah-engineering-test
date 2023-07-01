@@ -16,7 +16,7 @@ export const HomeBoardPage: React.FC = () => {
   const [sortDirectionDescending, setSortDirectionDescending] = useState(false)
   const [sortByOptionIndex, setSortByOptionIndex] = useState(0)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
-  const [searchTerm, setSearchTerm] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
@@ -55,7 +55,7 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} sortOrderTitle={getSortByTitle(sortBy, sortDirectionDescending)}/>
+        <Toolbar onItemClick={onToolbarAction} sortOrderTitle={getSortByTitle(sortBy, sortDirectionDescending)} onSearchChange={setSearchTerm}/>
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -65,7 +65,7 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && data?.students && (
           <>
-            {sortStudents(searchStudents(data.students, 'Bran'), sortBy, sortDirectionDescending).map((s) => (
+            {sortStudents(searchStudents(data.students, searchTerm), sortBy, sortDirectionDescending).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s}/>
             ))}
           </>
@@ -126,13 +126,14 @@ type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
   sortOrderTitle: string
+  onSearchChange: (value: string) => void
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, sortOrderTitle } = props
+  const { onItemClick, sortOrderTitle, onSearchChange } = props
   return (
     <S.ToolbarContainer>
       <div onClick={() => onItemClick("sort")}>{sortOrderTitle}</div>
-      <div>Search</div>
+      <div><input placeholder="Search" onChange={(e) => onSearchChange(e.target.value)}/></div>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
