@@ -132,7 +132,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
   const { onItemClick, sortOrderTitle, onSearchChange } = props
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>{sortOrderTitle}</div>
+      <S.Button onClick={() => onItemClick("sort")}>{sortOrderTitle}</S.Button>
       <div><input placeholder="Search" onChange={(e) => onSearchChange(e.target.value)}/></div>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
