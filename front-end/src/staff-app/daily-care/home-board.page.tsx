@@ -10,6 +10,8 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { sortAlphabetical } from "shared/helpers/sort-utils"
+import { ItemType, StateList } from "staff-app/components/roll-state/roll-state-list.component"
+import { RolllStateType } from "shared/models/roll"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -17,6 +19,14 @@ export const HomeBoardPage: React.FC = () => {
   const [sortByOptionIndex, setSortByOptionIndex] = useState(0)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [searchTerm, setSearchTerm] = useState('')
+
+  const studentRollStates: StudentRollState[] = [
+    {id: 1, rollState: 'present'},
+    {id: 2, rollState: 'absent'},
+    {id: 3, rollState: 'late'},
+    {id: 3, rollState: 'late'},
+    {id: 3, rollState: 'late'},
+  ]
 
   const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
@@ -77,7 +87,11 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} />
+      <ActiveRollOverlay
+        isActive={isRollMode}
+        onItemClick={onActiveRollAction}
+        stateList={studentRollsToRollStateList(studentRollStates)}
+      />
     </>
   )
 }
@@ -122,6 +136,27 @@ const getSortByTitle = (by: string, descending: boolean) => {
   return title
 }
 
+const studentRollsToRollStateList = (studentRolls: StudentRollState[]): StateList[] => {
+  let rollTally = {
+    all: 0,
+    present: 0,
+    late: 0,
+    absent: 0,
+    unmark: 0
+  }
+  
+  for (let i = 0; i < studentRolls.length; i++) {
+    rollTally[studentRolls[i].rollState] = rollTally[studentRolls[i].rollState] + 1
+  }
+
+  return [
+    { type: "all", count: rollTally.all },
+    { type: "present", count: rollTally.present },
+    { type: "late", count: rollTally.late },
+    { type: "absent", count: rollTally.absent }  
+  ]
+}
+
 type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
@@ -137,6 +172,11 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
+}
+
+interface StudentRollState {
+  id: number
+  rollState: ItemType
 }
 
 const S = {
