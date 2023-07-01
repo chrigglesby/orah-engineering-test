@@ -14,13 +14,32 @@ import { sortAlphabetical } from "shared/helpers/sort-utils"
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [sortDirectionDescending, setSortDirectionDescending] = useState(false)
+  const [sortByOptionIndex, setSortByOptionIndex] = useState(0)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
+  const sortByOptions = ['fullName', 'firstName', 'lastName']
+  const sortBy = sortByOptions[sortByOptionIndex]
+  
   useEffect(() => {
     void getStudents()
   }, [getStudents])
 
   const onToolbarAction = (action: ToolbarAction) => {
+    // On sort, cycle through sort type and order
+    if (action === "sort") {
+      setSortDirectionDescending(!sortDirectionDescending)
+
+      // For each sortBy we alternate Asc/Desc, so only cycle sortBy on desc
+      if (sortDirectionDescending) {
+        // Cycle sortBy
+        if (sortByOptionIndex < sortByOptions.length - 1) {
+          setSortByOptionIndex(sortByOptionIndex + 1)
+        } else {
+          setSortByOptionIndex(0)
+        }
+      }
+    }
+
     if (action === "roll") {
       setIsRollMode(true)
     }
@@ -32,8 +51,21 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
-  const sortStudents = (students: Person[], descending: boolean) => {
-    students.sort((a, b) => sortAlphabetical(a.first_name + a.last_name, b.first_name + b.last_name, descending))
+  const sortStudents = (students: Person[], by: string, descending: boolean) => {
+    students.sort((a, b) => {
+      let nameA = a.first_name
+      let nameB = b.first_name
+
+      if (by === 'fullName') {
+        nameA += a.last_name
+        nameB += b.last_name
+      } else if (by === 'lastName') {
+        nameA = a.last_name
+        nameB = b.last_name
+      }
+
+      return sortAlphabetical(nameA, nameB, descending)
+    })
 
     return students
   }
@@ -51,7 +83,7 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && data?.students && (
           <>
-            {sortStudents(data.students, sortDirectionDescending).map((s) => (
+            {sortStudents(data.students, sortBy, sortDirectionDescending).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
