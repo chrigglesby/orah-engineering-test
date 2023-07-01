@@ -70,10 +70,28 @@ export const HomeBoardPage: React.FC = () => {
     return students
   }
 
+  const getSortByTitle = (by: string, descending: boolean) => {
+    let title
+    switch(by){
+      case 'firstName':
+        title = 'First'
+        break
+      case 'lastName':
+        title = 'Last'
+        break
+      default:
+        title = 'Full'
+    }
+    title += ' Name '
+    title += descending ? '▼' : '▲'
+
+    return title
+  }
+
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} />
+        <Toolbar onItemClick={onToolbarAction} sortOrderTitle={getSortByTitle(sortBy, sortDirectionDescending)}/>
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -84,7 +102,7 @@ export const HomeBoardPage: React.FC = () => {
         {loadState === "loaded" && data?.students && (
           <>
             {sortStudents(data.students, sortBy, sortDirectionDescending).map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+              <StudentListTile key={s.id} isRollMode={isRollMode} student={s}/>
             ))}
           </>
         )}
@@ -103,12 +121,13 @@ export const HomeBoardPage: React.FC = () => {
 type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
+  sortOrderTitle: string
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick } = props
+  const { onItemClick, sortOrderTitle } = props
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>First Name</div>
+      <div onClick={() => onItemClick("sort")}>{sortOrderTitle}</div>
       <div>Search</div>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
