@@ -9,9 +9,11 @@ import { Person } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
+import { sortAlphabetical } from "shared/helpers/sort-utils"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
+  const [sortDirectionDescending, setSortDirectionDescending] = useState(false)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
   useEffect(() => {
@@ -30,6 +32,12 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
+  const sortStudents = (students: Person[], descending: boolean) => {
+    students.sort((a, b) => sortAlphabetical(a.first_name + a.last_name, b.first_name + b.last_name, descending))
+
+    return students
+  }
+
   return (
     <>
       <S.PageContainer>
@@ -43,7 +51,7 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && data?.students && (
           <>
-            {data.students.map((s) => (
+            {sortStudents(data.students, sortDirectionDescending).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
