@@ -78,6 +78,14 @@ export const HomeBoardPage: React.FC = () => {
     setRollStateFilter(type)
   }
 
+  const students = data?.students ?
+    sortStudents(
+      searchStudents(
+        filterStudentsByRollState(data.students, rollStateFilter, roll),
+      searchTerm),
+    sortBy, sortDirectionDescending)
+    : []
+
   return (
     <>
       <S.PageContainer>
@@ -89,13 +97,9 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && (
           <>
-            {sortStudents(
-              searchStudents(
-                filterStudentsByRollState(data.students, rollStateFilter, roll),
-              searchTerm),
-            sortBy, sortDirectionDescending).map((s) => (
+            {students.map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollState={getStudentRoleState(s, roll)} onRollStateChange={onRollStateChange}/>
             ))}
           </>
