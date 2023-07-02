@@ -17,7 +17,7 @@ export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [sortDirectionDescending, setSortDirectionDescending] = useState(false)
   const [sortByOptionIndex, setSortByOptionIndex] = useState(0)
-  const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [getStudents, studentsData, studentsLoadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [searchTerm, setSearchTerm] = useState('')
   const [roll, setRoll] = useState<RollEntry[]>([])
   const [rollStateFilter, setRollStateFilter] = useState<ItemType>('all')
@@ -36,11 +36,11 @@ export const HomeBoardPage: React.FC = () => {
   }, [rollLoadState])
 
   useEffect(() => {
-    if (data?.students) {
+    if (studentsData?.students) {
       // Generate roll structure
-      setRoll(data.students.map(s => ({student_id: s.id, roll_state: 'unmark'})))
+      setRoll(studentsData.students.map(s => ({student_id: s.id, roll_state: 'unmark'})))
     }
-  }, [data])
+  }, [studentsData])
 
   const onToolbarAction = (action: ToolbarAction) => {
     // On sort, cycle through sort type and order
@@ -88,10 +88,10 @@ export const HomeBoardPage: React.FC = () => {
     setRollStateFilter(type)
   }
 
-  const students = data?.students ?
+  const students = studentsData?.students ?
     sortStudents(
       searchStudents(
-        filterStudentsByRollState(data.students, rollStateFilter, roll),
+        filterStudentsByRollState(studentsData.students, rollStateFilter, roll),
       searchTerm),
     sortBy, sortDirectionDescending)
     : []
@@ -101,13 +101,13 @@ export const HomeBoardPage: React.FC = () => {
       <S.PageContainer>
         <Toolbar onItemClick={onToolbarAction} sortOrderTitle={getSortByTitle(sortBy, sortDirectionDescending)} onSearchChange={setSearchTerm}/>
 
-        {loadState === "loading" && (
+        {studentsLoadState === "loading" && (
           <CenteredContainer>
             <FontAwesomeIcon icon="spinner" size="2x" spin />
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && (
+        {studentsLoadState === "loaded" && (
           <>
             {students.map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollState={getStudentRoleState(s, roll)} onRollStateChange={onRollStateChange}/>
@@ -115,7 +115,7 @@ export const HomeBoardPage: React.FC = () => {
           </>
         )}
 
-        {loadState === "error" && (
+        {studentsLoadState === "error" && (
           <CenteredContainer>
             <div>Failed to load</div>
           </CenteredContainer>
