@@ -10,7 +10,7 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { sortAlphabetical } from "shared/helpers/sort-utils"
-import { StateList } from "staff-app/components/roll-state/roll-state-list.component"
+import { ItemType, StateList } from "staff-app/components/roll-state/roll-state-list.component"
 import { RollEntry, RolllStateType } from "shared/models/roll"
 
 export const HomeBoardPage: React.FC = () => {
@@ -20,6 +20,7 @@ export const HomeBoardPage: React.FC = () => {
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [searchTerm, setSearchTerm] = useState('')
   const [roll, setRoll] = useState<RollEntry[]>([])
+  const [rollStateFilter, setRollStateFilter] = useState<ItemType>('all')
 
   const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
@@ -73,6 +74,10 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
+  const onRollStateClick = (type: ItemType) => {
+    setRollStateFilter(type)
+  }
+
   return (
     <>
       <S.PageContainer>
@@ -86,7 +91,11 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && data?.students && (
           <>
-            {sortStudents(searchStudents(data.students, searchTerm), sortBy, sortDirectionDescending).map((s) => (
+            {sortStudents(
+              searchStudents(
+                filterStudentsByRollState(data.students, rollStateFilter, roll),
+              searchTerm),
+            sortBy, sortDirectionDescending).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} onRollStateChange={onRollStateChange}/>
             ))}
           </>
@@ -102,6 +111,7 @@ export const HomeBoardPage: React.FC = () => {
         isActive={isRollMode}
         onItemClick={onActiveRollAction}
         stateList={studentRollsToRollStateList(roll)}
+        onRollStateClick={onRollStateClick}
       />
     </>
   )
@@ -130,6 +140,18 @@ const searchStudents = (students: Person[], searchTerm: string) => {
 
     return name.indexOf(searchTerm) > -1
   })
+}
+
+const filterStudentsByRollState = (students: Person[], rollState: ItemType, roll: RollEntry[]) => {
+  if (rollState === 'all') return students
+
+  // Student id matching roll state
+  const rollStateStudentIds = roll.filter(s => s.roll_state === rollState).map(s => s.student_id)
+
+  // Filtered students
+  const filtered = students.filter(s => rollStateStudentIds.includes(s.id))
+
+  return filtered
 }
 
 const getSortByTitle = (by: string, descending: boolean) => {
