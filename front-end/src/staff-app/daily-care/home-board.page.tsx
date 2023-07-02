@@ -71,6 +71,7 @@ export const HomeBoardPage: React.FC = () => {
   const onActiveRollAction = (action: ActiveRollAction) => {
     if (action === "exit") {
       setIsRollMode(false)
+      setRollStateFilter('all') // Clear filter on roll mode close
     }
   }
 
