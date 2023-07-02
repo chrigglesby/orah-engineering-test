@@ -21,6 +21,7 @@ export const HomeBoardPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [roll, setRoll] = useState<RollEntry[]>([])
   const [rollStateFilter, setRollStateFilter] = useState<ItemType>('all')
+  const [saveActiveRoll, rollData, rollLoadState] = useApi<{ student_roll_states: RollEntry[] }>({ url: "save-roll", initialLoadState: "loaded" })
 
   const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
@@ -28,6 +29,11 @@ export const HomeBoardPage: React.FC = () => {
   useEffect(() => {
     void getStudents()
   }, [getStudents])
+
+  useEffect(() => {
+    if (rollLoadState === 'loaded') setIsRollMode(false)
+    // TODO: Show success message
+  }, [rollLoadState])
 
   useEffect(() => {
     if (data?.students) {
@@ -72,6 +78,9 @@ export const HomeBoardPage: React.FC = () => {
     if (action === "exit") {
       setIsRollMode(false)
       setRollStateFilter('all') // Clear filter on roll mode close
+    }
+    if (action === "complete") {
+      saveActiveRoll(roll)
     }
   }
 
@@ -118,6 +127,7 @@ export const HomeBoardPage: React.FC = () => {
         stateList={studentRollsToRollStateList(roll)}
         onRollStateClick={onRollStateClick}
         activeState={rollStateFilter}
+        loading={rollLoadState === "loading"}
       />
     </>
   )

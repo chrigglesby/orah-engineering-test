@@ -3,18 +3,20 @@ import styled from "styled-components"
 import Button from "@material-ui/core/Button"
 import { BorderRadius, Spacing } from "shared/styles/styles"
 import { ItemType, RollStateList, StateList } from "staff-app/components/roll-state/roll-state-list.component"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
-export type ActiveRollAction = "filter" | "exit"
+export type ActiveRollAction = "filter" | "exit" | "complete"
 interface Props {
   isActive: boolean
   onItemClick: (action: ActiveRollAction, value?: string) => void
   stateList: StateList[]
   onRollStateClick?: (type: ItemType) => void 
   activeState?: ItemType
+  loading?: boolean
 }
 
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
-  const { isActive, onItemClick, stateList, onRollStateClick, activeState } = props
+  const { isActive, onItemClick, stateList, onRollStateClick, activeState, loading } = props
 
   const handleRollStateClick = (type: ItemType) => {
     if (onRollStateClick) {
@@ -33,12 +35,19 @@ export const ActiveRollOverlay: React.FC<Props> = (props) => {
             activeState={activeState}
           />
           <div style={{ marginTop: Spacing.u6 }}>
-            <Button color="inherit" onClick={() => onItemClick("exit")}>
-              Exit
-            </Button>
-            <Button color="inherit" style={{ marginLeft: Spacing.u2 }} onClick={() => onItemClick("exit")}>
-              Complete
-            </Button>
+            {loading && (
+              <FontAwesomeIcon icon="spinner" size="2x" color="white" spin />
+            )}
+            {!loading && (
+                <>
+                  <Button color="inherit" onClick={() => onItemClick("exit")}>
+                    Exit
+                  </Button>
+                  <Button color="inherit" style={{ marginLeft: Spacing.u2 }} onClick={() => onItemClick("complete")}>
+                    Complete
+                  </Button>
+                </>
+            )}
           </div>
         </div>
       </S.Content>
