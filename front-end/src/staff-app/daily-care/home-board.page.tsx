@@ -96,7 +96,7 @@ export const HomeBoardPage: React.FC = () => {
                 filterStudentsByRollState(data.students, rollStateFilter, roll),
               searchTerm),
             sortBy, sortDirectionDescending).map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} onRollStateChange={onRollStateChange}/>
+              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollState={getStudentRoleState(s, roll)} onRollStateChange={onRollStateChange}/>
             ))}
           </>
         )}
@@ -189,6 +189,10 @@ const studentRollsToRollStateList = (studentRolls: RollEntry[]): StateList[] => 
     { type: "absent", count: rollTally.absent },
     { type: "unmark", count: rollTally.unmark }
   ]
+}
+
+const getStudentRoleState = (student: Person, roll: RollEntry[]): RolllStateType => {
+  return roll.find(s => s.student_id === student.id)?.roll_state || 'unmark'
 }
 
 type ToolbarAction = "roll" | "sort"

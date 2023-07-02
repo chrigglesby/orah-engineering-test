@@ -9,10 +9,11 @@ import { RolllStateType } from "shared/models/roll"
 
 interface Props {
   isRollMode?: boolean
-  student: Person,
+  student: Person
   onRollStateChange: (id: number, rollState: RolllStateType) => void
+  rollState: RolllStateType
 }
-export const StudentListTile: React.FC<Props> = ({ isRollMode, student, onRollStateChange }) => {
+export const StudentListTile: React.FC<Props> = ({ isRollMode, student, onRollStateChange, rollState }) => {
   return (
     <S.Container>
       <S.Avatar url={Images.avatar}></S.Avatar>
@@ -21,7 +22,7 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student, onRollSt
       </S.Content>
       {isRollMode && (
         <S.Roll>
-          <RollStateSwitcher onStateChange={(next) => onRollStateChange(student.id, next)}/>
+          <RollStateSwitcher onStateChange={(next) => onRollStateChange(student.id, next)} initialState={rollState}/>
         </S.Roll>
       )}
     </S.Container>
