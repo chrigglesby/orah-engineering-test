@@ -9,8 +9,9 @@ interface Props {
   stateList: StateList[]
   onItemClick?: (type: ItemType) => void
   size?: number
+  activeState?: ItemType
 }
-export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemClick }) => {
+export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemClick, activeState }) => {
   const onClick = (type: ItemType) => {
     if (onItemClick) {
       onItemClick(type)
@@ -22,7 +23,7 @@ export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemCli
       {stateList.map((s, i) => {
         if (s.type === "all") {
           return (
-            <S.ListItem key={i}>
+            <S.ListItem key={i} active={activeState === s.type}>
               <FontAwesomeIcon icon="users" size="sm" style={{ cursor: "pointer" }} onClick={() => onClick(s.type)} />
               <span>{s.count}</span>
             </S.ListItem>
@@ -30,7 +31,7 @@ export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemCli
         }
 
         return (
-          <S.ListItem key={i}>
+          <S.ListItem key={i} active={activeState === s.type}>
             <RollStateIcon type={s.type} size={size} onClick={() => onClick(s.type)} />
             <span>{s.count}</span>
           </S.ListItem>
@@ -45,10 +46,12 @@ const S = {
     display: flex;
     align-items: center;
   `,
-  ListItem: styled.div`
+  ListItem: styled.div<{ active?: boolean; }>`
     display: flex;
     align-items: center;
+    padding-bottom: ${Spacing.u1};
     margin-right: ${Spacing.u2};
+    border-bottom: ${props => props.active ? `${Spacing.u1} solid white` : ""};
 
     span {
       font-weight: ${FontWeight.strong};

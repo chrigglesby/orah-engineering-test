@@ -116,6 +116,7 @@ export const HomeBoardPage: React.FC = () => {
         onItemClick={onActiveRollAction}
         stateList={studentRollsToRollStateList(roll)}
         onRollStateClick={onRollStateClick}
+        activeState={rollStateFilter}
       />
     </>
   )

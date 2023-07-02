@@ -10,10 +10,11 @@ interface Props {
   onItemClick: (action: ActiveRollAction, value?: string) => void
   stateList: StateList[]
   onRollStateClick?: (type: ItemType) => void 
+  activeState?: ItemType
 }
 
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
-  const { isActive, onItemClick, stateList, onRollStateClick } = props
+  const { isActive, onItemClick, stateList, onRollStateClick, activeState } = props
 
   const handleRollStateClick = (type: ItemType) => {
     if (onRollStateClick) {
@@ -29,6 +30,7 @@ export const ActiveRollOverlay: React.FC<Props> = (props) => {
           <RollStateList
             stateList={stateList}
             onItemClick={handleRollStateClick}
+            activeState={activeState}
           />
           <div style={{ marginTop: Spacing.u6 }}>
             <Button color="inherit" onClick={() => onItemClick("exit")}>
