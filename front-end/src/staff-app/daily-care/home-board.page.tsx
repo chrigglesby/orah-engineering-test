@@ -80,7 +80,7 @@ export const HomeBoardPage: React.FC = () => {
       setRollStateFilter('all') // Clear filter on roll mode close
     }
     if (action === "complete") {
-      saveActiveRoll(roll)
+      saveActiveRoll({ student_roll_states: roll })
     }
   }
 
