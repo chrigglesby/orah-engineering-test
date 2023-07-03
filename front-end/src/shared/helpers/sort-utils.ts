@@ -11,7 +11,7 @@ export const sortAlphabetical = (a: string, b: string, descending: boolean = fal
   return weight
 }
 
-export const sortStudents = (students: Person[], by: string, descending: boolean) => {
+export const sortStudents = (students: Person[], by: string, descending: boolean = false) => {
   students.sort((a, b) => {
     let nameA = a.first_name + a.last_name
     let nameB = b.first_name + b.last_name

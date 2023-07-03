@@ -7,6 +7,8 @@ import { RollStateList } from "../roll-state/roll-state-list.component"
 import { studentRollsToRollStateList } from "shared/helpers/data-utils"
 import { RollStateIcon } from "../roll-state/roll-state-icon.component"
 import { Person, PersonHelper } from "shared/models/person"
+import { RollEntry } from "shared/models/roll"
+import { sortAlphabetical } from "shared/helpers/sort-utils"
 
 interface Props {
   activity: Activity
@@ -21,6 +23,16 @@ export const ActivityListTile: React.FC<Props> = ({ activity, students, onClick,
     onClick(!active ? activity.entity.id : null)
   }
 
+  // First name ascending order
+  const studentRollStates: StudentRollState[] = activity.entity.student_roll_states.map((s) => {
+    let student: StudentRollState = {
+      ...s,
+      name: getStudentName(s.student_id, students) || ''
+    }
+
+    return student
+  }).sort((a, b) => sortAlphabetical(a.name, b.name))
+
   return (
     <S.Container onClick={handleClick}>
       <S.Content>
@@ -34,10 +46,10 @@ export const ActivityListTile: React.FC<Props> = ({ activity, students, onClick,
           <RollStateList stateList={studentRollsToRollStateList(activity.entity.student_roll_states)} />
         </S.RollStateContainer>
         <S.Students active={active}>
-          { activity.entity.student_roll_states.map((s) => (
+          { studentRollStates.map((s) => (
             <S.Student key={s.student_id}>
               <RollStateIcon type={s.roll_state} size={14}/>
-              <S.StudentName>{ getStudentName(s.student_id, students) }</S.StudentName>
+              <S.StudentName>{ s.name }</S.StudentName>
             </S.Student>
           )) }
         </S.Students>
@@ -50,6 +62,10 @@ const getStudentName = (student_id: number, students: Person[]): string | undefi
   const student: Person | undefined = students.find(s => s.id === student_id)
   
   return student ? PersonHelper.getFullName(student) : undefined
+}
+
+interface StudentRollState extends RollEntry {
+  name: string
 }
 
 const S = {
