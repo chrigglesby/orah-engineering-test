@@ -11,6 +11,13 @@ export const sortAlphabetical = (a: string, b: string, descending: boolean = fal
   return weight
 }
 
+export const sortDate = (a: Date, b: Date, descending: boolean = false) => {
+  const dateA = new Date(a).getTime()
+  const dateB = new Date(b).getTime()
+  const weight = dateA - dateB
+  return descending ? weight * -1 : weight
+}
+
 export const sortStudents = (students: Person[], by: string, descending: boolean = false) => {
   students.sort((a, b) => {
     let nameA = a.first_name + a.last_name
