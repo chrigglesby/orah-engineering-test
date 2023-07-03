@@ -1,18 +1,23 @@
 import React from "react"
 import styled from "styled-components"
 import { Spacing, BorderRadius, FontWeight } from "shared/styles/styles"
-import { Images } from "assets/images"
 import { Colors } from "shared/styles/colors"
 import { Activity } from "shared/models/activity"
+import { RollStateList } from "../roll-state/roll-state-list.component"
+import { studentRollsToRollStateList } from "shared/helpers/data-utils"
 
 interface Props {
   activity: Activity
 }
 export const ActivityListTile: React.FC<Props> = ({ activity }) => {
+  const date = new Date(activity.date).toLocaleDateString()
+
   return (
     <S.Container>
       <S.Content>
-        <div>{activity.date}</div>
+        <div>{ activity.entity.name }</div>
+        <div>{ date }</div>
+        <RollStateList stateList={studentRollsToRollStateList(activity.entity.student_roll_states)} />
       </S.Content>
     </S.Container>
   )
