@@ -1,8 +1,12 @@
 import React, { useEffect } from "react"
 import styled from "styled-components"
-import { Spacing } from "shared/styles/styles"
+import { BorderRadius, FontWeight, Spacing } from "shared/styles/styles"
 import { useApi } from "shared/hooks/use-api"
 import { Activity } from "shared/models/activity"
+import { CenteredContainer } from "shared/components/centered-container/centered-container.component"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ActivityListTile } from "staff-app/components/activity/activity-list-tile.component"
+import { Colors } from "shared/styles/colors"
 
 export const ActivityPage: React.FC = () => {
   const [getActivities, activitiesData, activitiesLoadState] = useApi<{ activity: Activity[] }>({ url: "get-activities" })
@@ -11,19 +15,24 @@ export const ActivityPage: React.FC = () => {
     void getActivities()
   }, [getActivities])
 
-  console.log(activitiesData)
-
   return <>
-    <S.Container>Activity Page</S.Container>
-    <h1>{ activitiesLoadState }</h1>
-    
-    {activitiesLoadState === "loaded" && activitiesData?.activity && (
-      <>
-        {activitiesData.activity.map((a) => (
-          <div>{ a.entity.id }</div>
-        ))}
-      </>
-    )}
+    <S.Container>
+      <S.ToolbarContainer>Activity Page</S.ToolbarContainer>
+      
+      {activitiesLoadState === "loading" && (
+        <CenteredContainer>
+          <FontAwesomeIcon icon="spinner" size="2x" spin />
+        </CenteredContainer>
+      )}
+      
+      {activitiesLoadState === "loaded" && activitiesData?.activity && (
+        <>
+          {activitiesData.activity.map((a) => (
+            <ActivityListTile activity={a}/>
+          ))}
+        </>
+      )}
+    </S.Container>
   </>
 }
 
@@ -34,4 +43,14 @@ const S = {
     width: 50%;
     margin: ${Spacing.u4} auto 0;
   `,
+  ToolbarContainer: styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  background-color: ${Colors.blue.base};
+  padding: 6px 14px;
+  font-weight: ${FontWeight.strong};
+  border-radius: ${BorderRadius.default};
+`,
 }
