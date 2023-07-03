@@ -4,6 +4,8 @@ import Button from "@material-ui/core/Button"
 import { BorderRadius, Spacing } from "shared/styles/styles"
 import { ItemType, RollStateList, StateList } from "staff-app/components/roll-state/roll-state-list.component"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Colors } from "shared/styles/colors"
+import { LoadState } from "shared/hooks/use-api"
 
 export type ActiveRollAction = "filter" | "exit" | "complete"
 interface Props {
@@ -12,11 +14,11 @@ interface Props {
   stateList: StateList[]
   onRollStateClick?: (type: ItemType) => void 
   activeState?: ItemType
-  loading?: boolean
+  loadState: LoadState
 }
 
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
-  const { isActive, onItemClick, stateList, onRollStateClick, activeState, loading } = props
+  const { isActive, onItemClick, stateList, onRollStateClick, activeState, loadState } = props
 
   const handleRollStateClick = (type: ItemType) => {
     if (onRollStateClick) {
@@ -34,21 +36,24 @@ export const ActiveRollOverlay: React.FC<Props> = (props) => {
             onItemClick={handleRollStateClick}
             activeState={activeState}
           />
-          <div style={{ marginTop: Spacing.u6 }}>
-            {loading && (
+          <S.Details hasError={loadState === 'error'}>
+            {loadState === 'loading' && (
               <FontAwesomeIcon icon="spinner" size="2x" color="white" spin />
             )}
-            {!loading && (
+            {(loadState === 'loaded' || loadState === 'error') && (
                 <>
+                  {loadState === 'error' && 
+                    <S.Error>Failed to save</S.Error>
+                  }
                   <Button color="inherit" onClick={() => onItemClick("exit")}>
                     Exit
                   </Button>
                   <Button color="inherit" style={{ marginLeft: Spacing.u2 }} onClick={() => onItemClick("complete")}>
-                    Complete
+                    { loadState === 'loaded' ? 'Complete' : 'Retry'}
                   </Button>
                 </>
             )}
-          </div>
+          </S.Details>
         </div>
       </S.Content>
     </S.Overlay>
@@ -75,5 +80,11 @@ const S = {
     border: 1px solid #f5f5f536;
     border-radius: ${BorderRadius.default};
     padding: ${Spacing.u4};
+  `,
+  Details: styled.div<{ hasError: boolean }>`
+    margin-top: ${({ hasError }) => (hasError ? Spacing.u2 : Spacing.u6)};
+  `,
+  Error: styled.div`
+    color: ${Colors.error.base};
   `,
 }

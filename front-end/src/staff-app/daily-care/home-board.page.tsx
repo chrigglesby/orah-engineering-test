@@ -32,8 +32,10 @@ export const HomeBoardPage: React.FC = () => {
   }, [getStudents])
 
   useEffect(() => {
-    if (rollLoadState === 'loaded') setIsRollMode(false)
-    // TODO: Show success message
+    if (rollLoadState === 'loaded') {
+      setIsRollMode(false)
+      // TODO: Show success message
+    }
   }, [rollLoadState])
 
   useEffect(() => {
@@ -128,7 +130,7 @@ export const HomeBoardPage: React.FC = () => {
         stateList={studentRollsToRollStateList(roll)}
         onRollStateClick={onRollStateClick}
         activeState={rollStateFilter}
-        loading={rollLoadState === "loading"}
+        loadState={rollLoadState}
       />
     </>
   )
