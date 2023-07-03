@@ -8,11 +8,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { ActivityListTile } from "staff-app/components/activity/activity-list-tile.component"
 import { Colors } from "shared/styles/colors"
 import { Person } from "shared/models/person"
+import Button from "@material-ui/core/ButtonBase"
 
 export const ActivityPage: React.FC = () => {
   const [getActivities, activitiesData, activitiesLoadState] = useApi<{ activity: Activity[] }>({ url: "get-activities" })
   const [getStudents, studentsData, studentsLoadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [activeActivityId, setActiveActivityId] = useState<number | null>(null)
+  const [sortDescending, setSortDescending] = useState<boolean>(false)
+  const [sortBy, setSortBy] = useState<'name' | 'date'>('name')
 
   useEffect(() => {
     void getActivities()
@@ -22,9 +25,19 @@ export const ActivityPage: React.FC = () => {
     void getStudents()
   }, [getStudents])
 
+  const toggleSort = () => {
+    setSortDescending(!sortDescending)
+
+      // For each sortBy we alternate Asc/Desc, so only cycle sortBy on desc
+      if (sortDescending) {
+        // Cycle sortBy
+        setSortBy(sortBy === 'name' ? 'date' : 'name')
+      }
+  }
+
   return <>
     <S.Container>
-      <S.ToolbarContainer>Activity Page</S.ToolbarContainer>
+      <Toolbar sortOrderTitle={getSortByTitle(sortBy, sortDescending)} onClick={toggleSort}/>
       
       {activitiesLoadState === "loading" || studentsLoadState === "loading" && (
         <CenteredContainer>
@@ -53,6 +66,33 @@ export const ActivityPage: React.FC = () => {
   </>
 }
 
+const getSortByTitle = (by: string, descending: boolean) => {
+  let title
+  switch(by){
+    case 'date':
+      title = 'Date'
+      break
+    default:
+      title = 'Name'
+  }
+  title += descending ? ' ▼' : ' ▲'
+
+  return title
+}
+
+interface ToolbarProps {
+  onClick: () => void
+  sortOrderTitle: string
+}
+const Toolbar: React.FC<ToolbarProps> = (props) => {
+  const { onClick, sortOrderTitle } = props
+  return (
+    <S.ToolbarContainer>
+      <S.Button onClick={onClick}>{sortOrderTitle}</S.Button>
+    </S.ToolbarContainer>
+  )
+}
+
 const S = {
   Container: styled.div`
     display: flex;
@@ -61,13 +101,20 @@ const S = {
     margin: ${Spacing.u4} auto 0;
   `,
   ToolbarContainer: styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #fff;
-  background-color: ${Colors.blue.base};
-  padding: 6px 14px;
-  font-weight: ${FontWeight.strong};
-  border-radius: ${BorderRadius.default};
-`,
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    background-color: ${Colors.blue.base};
+    padding: 6px 14px;
+    font-weight: ${FontWeight.strong};
+    border-radius: ${BorderRadius.default};
+  `,
+  Button: styled(Button)`
+    && {
+      padding: ${Spacing.u2};
+      font-weight: ${FontWeight.strong};
+      border-radius: ${BorderRadius.default};
+    }
+  `,
 }
