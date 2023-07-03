@@ -77,6 +77,12 @@ export const ActivityPage: React.FC = () => {
         </>
       )}
 
+      {activitiesLoadState === "loaded" && activities?.length === 0 && (
+        <CenteredContainer>
+          <div>No activities found</div>
+        </CenteredContainer>
+      )}
+
       {(activitiesLoadState === "error" || studentsLoadState === "error") && (
         <CenteredContainer>
           <div>Failed to load</div>

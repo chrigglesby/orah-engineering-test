@@ -125,6 +125,12 @@ export const HomeBoardPage: React.FC = () => {
           </>
         )}
 
+        {studentsLoadState === "loaded" && students.length === 0 && (
+          <CenteredContainer>
+            <div>No students found</div>
+          </CenteredContainer>
+        )}
+
         {studentsLoadState === "error" && (
           <CenteredContainer>
             <div>Failed to load</div>
