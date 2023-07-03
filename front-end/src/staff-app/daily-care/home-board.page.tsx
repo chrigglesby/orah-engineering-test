@@ -12,6 +12,7 @@ import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active
 import { sortAlphabetical } from "shared/helpers/sort-utils"
 import { ItemType, StateList } from "staff-app/components/roll-state/roll-state-list.component"
 import { RollEntry, RolllStateType } from "shared/models/roll"
+import { studentRollsToRollStateList } from "shared/helpers/data-utils"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -133,22 +134,6 @@ export const HomeBoardPage: React.FC = () => {
   )
 }
 
-const sortStudents = (students: Person[], by: string, descending: boolean) => {
-  students.sort((a, b) => {
-    let nameA = a.first_name + a.last_name
-    let nameB = b.first_name + b.last_name
-
-    if (by === 'lastName') {
-      nameA = a.last_name + a.first_name
-      nameB = b.last_name + b.first_name
-    }
-
-    return sortAlphabetical(nameA, nameB, descending)
-  })
-
-  return students
-}
-
 const searchStudents = (students: Person[], searchTerm: string) => {
   return students.filter(s => {
     let name = (s.first_name + ' ' + s.last_name).toLowerCase()
@@ -183,28 +168,6 @@ const getSortByTitle = (by: string, descending: boolean) => {
   title += descending ? '▼' : '▲'
 
   return title
-}
-
-const studentRollsToRollStateList = (studentRolls: RollEntry[]): StateList[] => {
-  let rollTally = {
-    all: 0,
-    present: 0,
-    late: 0,
-    absent: 0,
-    unmark: 0
-  }
-  
-  for (let i = 0; i < studentRolls.length; i++) {
-    rollTally[studentRolls[i].roll_state] = rollTally[studentRolls[i].roll_state] + 1
-  }
-
-  return [
-    { type: "all", count: studentRolls.length },
-    { type: "present", count: rollTally.present },
-    { type: "late", count: rollTally.late },
-    { type: "absent", count: rollTally.absent },
-    { type: "unmark", count: rollTally.unmark }
-  ]
 }
 
 const getStudentRoleState = (student: Person, roll: RollEntry[]): RolllStateType => {
