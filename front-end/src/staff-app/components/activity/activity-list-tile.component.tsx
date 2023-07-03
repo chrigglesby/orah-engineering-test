@@ -5,11 +5,14 @@ import { Colors } from "shared/styles/colors"
 import { Activity } from "shared/models/activity"
 import { RollStateList } from "../roll-state/roll-state-list.component"
 import { studentRollsToRollStateList } from "shared/helpers/data-utils"
+import { RollStateIcon } from "../roll-state/roll-state-icon.component"
+import { Person, PersonHelper } from "shared/models/person"
 
 interface Props {
-  activity: Activity
+  activity: Activity,
+  students: Person[]
 }
-export const ActivityListTile: React.FC<Props> = ({ activity }) => {
+export const ActivityListTile: React.FC<Props> = ({ activity, students }) => {
   const date = new Date(activity.date).toLocaleDateString()
 
   return (
@@ -24,9 +27,23 @@ export const ActivityListTile: React.FC<Props> = ({ activity }) => {
         <S.RollStateContainer>
           <RollStateList stateList={studentRollsToRollStateList(activity.entity.student_roll_states)} />
         </S.RollStateContainer>
+        <S.Students>
+          { activity.entity.student_roll_states.map((s) => (
+            <S.Student key={s.student_id}>
+              <RollStateIcon type={s.roll_state} size={10}/>
+              <div>{ getStudentName(s.student_id, students) }</div>
+            </S.Student>
+          )) }
+        </S.Students>
       </S.Content>
     </S.Container>
   )
+}
+
+const getStudentName = (student_id: number, students: Person[]): string | undefined => {
+  const student: Person | undefined = students.find(s => s.id === student_id)
+  
+  return student ? PersonHelper.getFullName(student) : undefined
 }
 
 const S = {
@@ -61,5 +78,11 @@ const S = {
   `,
   RollStateContainer: styled.div`
     display: inline-block;
+  `,
+  Students: styled.div`
+    
+  `,
+  Student: styled.div`
+    display: flex;
   `,
 }

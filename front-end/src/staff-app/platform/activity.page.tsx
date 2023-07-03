@@ -7,28 +7,38 @@ import { CenteredContainer } from "shared/components/centered-container/centered
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { ActivityListTile } from "staff-app/components/activity/activity-list-tile.component"
 import { Colors } from "shared/styles/colors"
+import { Person } from "shared/models/person"
 
 export const ActivityPage: React.FC = () => {
   const [getActivities, activitiesData, activitiesLoadState] = useApi<{ activity: Activity[] }>({ url: "get-activities" })
+  const [getStudents, studentsData, studentsLoadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
   useEffect(() => {
     void getActivities()
   }, [getActivities])
 
+  useEffect(() => {
+    void getStudents()
+  }, [getStudents])
+
   return <>
     <S.Container>
       <S.ToolbarContainer>Activity Page</S.ToolbarContainer>
       
-      {activitiesLoadState === "loading" && (
+      {activitiesLoadState === "loading" || studentsLoadState === "loading" && (
         <CenteredContainer>
           <FontAwesomeIcon icon="spinner" size="2x" spin />
         </CenteredContainer>
       )}
       
-      {activitiesLoadState === "loaded" && activitiesData?.activity && (
+      {activitiesLoadState === "loaded"
+        && studentsLoadState === "loaded"
+        && activitiesData?.activity
+        && studentsData?.students
+        && (
         <>
           {activitiesData.activity.map((a) => (
-            <ActivityListTile key={a.entity.id} activity={a}/>
+            <ActivityListTile key={a.entity.id} activity={a} students={studentsData.students}/>
           ))}
         </>
       )}
