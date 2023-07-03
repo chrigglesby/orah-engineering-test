@@ -28,7 +28,7 @@ export const ActivityPage: React.FC = () => {
       {activitiesLoadState === "loaded" && activitiesData?.activity && (
         <>
           {activitiesData.activity.map((a) => (
-            <ActivityListTile activity={a}/>
+            <ActivityListTile key={a.entity.id} activity={a}/>
           ))}
         </>
       )}

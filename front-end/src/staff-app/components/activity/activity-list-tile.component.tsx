@@ -15,9 +15,15 @@ export const ActivityListTile: React.FC<Props> = ({ activity }) => {
   return (
     <S.Container>
       <S.Content>
-        <div>{ activity.entity.name }</div>
-        <div>{ date }</div>
-        <RollStateList stateList={studentRollsToRollStateList(activity.entity.student_roll_states)} />
+        <S.Title>
+          { activity.entity.name }
+          <S.Info>
+            - { date }
+          </S.Info>
+        </S.Title>
+        <S.RollStateContainer>
+          <RollStateList stateList={studentRollsToRollStateList(activity.entity.student_roll_states)} />
+        </S.RollStateContainer>
       </S.Content>
     </S.Container>
   )
@@ -43,5 +49,17 @@ const S = {
     padding: ${Spacing.u2};
     color: ${Colors.dark.base};
     font-weight: ${FontWeight.strong};
+  `,
+  Title: styled.div`
+    padding-bottom: ${Spacing.u2};
+  `,
+  Info: styled.div`
+    display: inline-block;
+    margin-left: ${Spacing.u2};
+    color: ${Colors.blue.darker};
+    font-weight: ${FontWeight.light};
+  `,
+  RollStateContainer: styled.div`
+    display: inline-block;
   `,
 }
