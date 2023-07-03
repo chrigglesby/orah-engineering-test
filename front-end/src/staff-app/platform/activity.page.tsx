@@ -9,6 +9,7 @@ import { ActivityListTile } from "staff-app/components/activity/activity-list-ti
 import { Colors } from "shared/styles/colors"
 import { Person } from "shared/models/person"
 import Button from "@material-ui/core/ButtonBase"
+import { sortAlphabetical } from "shared/helpers/sort-utils"
 
 export const ActivityPage: React.FC = () => {
   const [getActivities, activitiesData, activitiesLoadState] = useApi<{ activity: Activity[] }>({ url: "get-activities" })
@@ -35,6 +36,24 @@ export const ActivityPage: React.FC = () => {
       }
   }
 
+  const sortActivities = (input: Activity[]) => {
+    let output = [...input]
+    output.sort((a: Activity, b: Activity) => {
+      if (sortBy === 'name') {
+        return sortAlphabetical(a.entity.name, b.entity.name, sortDescending)
+      }
+      const dateA = new Date(a.date).getTime()
+      const dateB = new Date(b.date).getTime()
+      const weight = dateA - dateB
+      return sortDescending ? weight * -1 : weight
+    })
+    return output
+  }
+
+  const activities = activitiesData?.activity ?
+    sortActivities(activitiesData.activity)
+    : undefined
+
   return <>
     <S.Container>
       <Toolbar sortOrderTitle={getSortByTitle(sortBy, sortDescending)} onClick={toggleSort}/>
@@ -47,11 +66,11 @@ export const ActivityPage: React.FC = () => {
       
       {activitiesLoadState === "loaded"
         && studentsLoadState === "loaded"
-        && activitiesData?.activity
+        && activities
         && studentsData?.students
         && (
         <>
-          {activitiesData.activity.map((a) => (
+          {activities.map((a) => (
             <ActivityListTile
               key={a.entity.id}
               activity={a}
