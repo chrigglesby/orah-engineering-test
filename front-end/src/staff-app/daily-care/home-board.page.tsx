@@ -13,6 +13,7 @@ import { sortAlphabetical, sortStudents } from "shared/helpers/sort-utils"
 import { ItemType, StateList } from "staff-app/components/roll-state/roll-state-list.component"
 import { RollEntry, RolllStateType } from "shared/models/roll"
 import { studentRollsToRollStateList } from "shared/helpers/data-utils"
+import { SuccessResponse } from "shared/interfaces/http.interface"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -22,7 +23,8 @@ export const HomeBoardPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [roll, setRoll] = useState<RollEntry[]>([])
   const [rollStateFilter, setRollStateFilter] = useState<ItemType>('all')
-  const [saveActiveRoll, rollData, rollLoadState] = useApi<{ student_roll_states: RollEntry[] }>({ url: "save-roll", initialLoadState: "loaded" })
+  const [saveActiveRoll, rollData, rollLoadState] = useApi<SuccessResponse>({ url: "save-roll", initialLoadState: "loaded" })
+  const [rollSubmitted, setRollSubmitted] = useState<boolean>(false)
 
   const sortByOptions = ['firstName', 'lastName']
   const sortBy = sortByOptions[sortByOptionIndex]
@@ -32,9 +34,9 @@ export const HomeBoardPage: React.FC = () => {
   }, [getStudents])
 
   useEffect(() => {
-    if (rollLoadState === 'loaded') {
+    if (rollLoadState === 'loaded' && rollData?.success) {
       setIsRollMode(false)
-      // TODO: Show success message
+      setRollSubmitted(true)
     }
   }, [rollLoadState])
 
@@ -102,7 +104,12 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} sortOrderTitle={getSortByTitle(sortBy, sortDirectionDescending)} onSearchChange={setSearchTerm}/>
+        <Toolbar
+          onItemClick={onToolbarAction}
+          sortOrderTitle={getSortByTitle(sortBy, sortDirectionDescending)}
+          onSearchChange={setSearchTerm}
+          rollSubmitted={rollSubmitted}
+        />
 
         {studentsLoadState === "loading" && (
           <CenteredContainer>
@@ -110,7 +117,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {studentsLoadState === "loaded" && (
+        {studentsLoadState === "loaded" && !rollSubmitted && (
           <>
             {students.map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollState={getStudentRoleState(s, roll)} onRollStateChange={onRollStateChange}/>
@@ -181,14 +188,22 @@ interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
   sortOrderTitle: string
   onSearchChange: (value: string) => void
+  rollSubmitted: boolean
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, sortOrderTitle, onSearchChange } = props
+  const { onItemClick, sortOrderTitle, onSearchChange, rollSubmitted } = props
   return (
     <S.ToolbarContainer>
-      <S.Button onClick={() => onItemClick("sort")}>{sortOrderTitle}</S.Button>
-      <div><input placeholder="Search" onChange={(e) => onSearchChange(e.target.value)}/></div>
-      <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
+      {rollSubmitted && 
+        <div>Roll submitted!</div>
+      }
+      { !rollSubmitted && (
+        <>
+          <S.Button onClick={() => onItemClick("sort")}>{sortOrderTitle}</S.Button>
+          <div><input placeholder="Search" onChange={(e) => onSearchChange(e.target.value)}/></div>
+          <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
+        </>
+      )}
     </S.ToolbarContainer>
   )
 }

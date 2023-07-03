@@ -19,5 +19,4 @@ export const Colors = {
   error: {
     base: 'red'
   }
-  
 }
