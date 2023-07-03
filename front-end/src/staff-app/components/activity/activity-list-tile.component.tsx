@@ -9,14 +9,20 @@ import { RollStateIcon } from "../roll-state/roll-state-icon.component"
 import { Person, PersonHelper } from "shared/models/person"
 
 interface Props {
-  activity: Activity,
+  activity: Activity
   students: Person[]
+  onClick: (id: number | null) => void
+  active?: boolean
 }
-export const ActivityListTile: React.FC<Props> = ({ activity, students }) => {
+export const ActivityListTile: React.FC<Props> = ({ activity, students, onClick, active }) => {
   const date = new Date(activity.date).toLocaleDateString()
 
+  const handleClick = () => {
+    onClick(!active ? activity.entity.id : null)
+  }
+
   return (
-    <S.Container>
+    <S.Container onClick={handleClick}>
       <S.Content>
         <S.Title>
           { activity.entity.name }
@@ -27,11 +33,11 @@ export const ActivityListTile: React.FC<Props> = ({ activity, students }) => {
         <S.RollStateContainer>
           <RollStateList stateList={studentRollsToRollStateList(activity.entity.student_roll_states)} />
         </S.RollStateContainer>
-        <S.Students>
+        <S.Students active={active}>
           { activity.entity.student_roll_states.map((s) => (
             <S.Student key={s.student_id}>
-              <RollStateIcon type={s.roll_state} size={10}/>
-              <div>{ getStudentName(s.student_id, students) }</div>
+              <RollStateIcon type={s.roll_state} size={14}/>
+              <S.StudentName>{ getStudentName(s.student_id, students) }</S.StudentName>
             </S.Student>
           )) }
         </S.Students>
@@ -51,7 +57,7 @@ const S = {
     margin-top: ${Spacing.u3};
     padding-right: ${Spacing.u2};
     display: flex;
-    height: 60px;
+    min-height: 60px;
     border-radius: ${BorderRadius.default};
     background-color: #fff;
     box-shadow: 0 2px 7px rgba(5, 66, 145, 0.13);
@@ -79,10 +85,18 @@ const S = {
   RollStateContainer: styled.div`
     display: inline-block;
   `,
-  Students: styled.div`
-    
+  Students: styled.div<{ active?: boolean; }>`
+    display: block;
+    max-height: ${props => props.active ? "500px" : "0px"};
+    overflow: hidden;
+    padding: ${Spacing.u1};
+    transition: max-height 0.3s ease-in-out;
   `,
   Student: styled.div`
     display: flex;
+    padding: ${Spacing.u1};
+  `,
+  StudentName: styled.div`
+    margin-left: ${Spacing.u2};
   `,
 }

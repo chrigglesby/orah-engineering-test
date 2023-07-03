@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import { BorderRadius, FontWeight, Spacing } from "shared/styles/styles"
 import { useApi } from "shared/hooks/use-api"
@@ -12,6 +12,7 @@ import { Person } from "shared/models/person"
 export const ActivityPage: React.FC = () => {
   const [getActivities, activitiesData, activitiesLoadState] = useApi<{ activity: Activity[] }>({ url: "get-activities" })
   const [getStudents, studentsData, studentsLoadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [activeActivityId, setActiveActivityId] = useState<number | null>(null)
 
   useEffect(() => {
     void getActivities()
@@ -38,7 +39,13 @@ export const ActivityPage: React.FC = () => {
         && (
         <>
           {activitiesData.activity.map((a) => (
-            <ActivityListTile key={a.entity.id} activity={a} students={studentsData.students}/>
+            <ActivityListTile
+              key={a.entity.id}
+              activity={a}
+              students={studentsData.students}
+              onClick={setActiveActivityId}
+              active={activeActivityId === a.entity.id}
+            />
           ))}
         </>
       )}
